@@ -1,42 +1,17 @@
 name: Java CI
 
-on:
-  push:
-    branches: ["**"]
-  pull_request:
-
-permissions:
-  contents: read  # recomendado para checkout
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
+      - uses: actions/checkout@v2
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v2
         with:
-          java-version: '11'          # cámbialo a '17' si tu proyecto usa Java 17
-          distribution: 'temurin'
-          cache: 'maven'              # habilita caché de dependencias
-
-      # Construye sin ejecutar tests
-      - name: Build (skip tests)
-        run: mvn -B -ntp -DskipTests clean package
-
-      # Ejecuta los tests
+          java-version: '11'
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
       - name: Run tests
-        run: mvn -B -ntp test
-
-      # Publica los reportes JUnit/Surefire como artefacto descargable
-      - name: Upload test reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: surefire-reports
-          path: |
-            target/surefire-reports/**
-            target/failsafe-reports/**
+        run: mvn test
