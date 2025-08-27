@@ -4,7 +4,10 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - name: Checkout repository
@@ -16,16 +19,33 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Make Maven Wrapper executable (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: chmod +x ./mvnw
+
       - name: Build with Maven
-        run: ./mvnw clean package --batch-mode
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            mvnw.cmd clean package --batch-mode
+          else
+            ./mvnw clean package --batch-mode
+          fi
 
       - name: Run tests
-        run: ./mvnw test
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            mvnw.cmd test
+          else
+            ./mvnw test
+          fi
 
       - name: Generate Allure Report
         run: |
-          # Generar el reporte de Allure
-          allure generate target/allure-results -o target/allure-report --clean
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            allure.bat generate target/allure-results -o target/allure-report --clean
+          else
+            allure generate target/allure-results -o target/allure-report --clean
+          fi
 
       - name: Upload Allure Report
         uses: actions/upload-artifact@v4
