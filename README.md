@@ -22,6 +22,18 @@ El desarrollo de esta aplicación tuvo los siguientes objetivos principales:
 
 ---
 
+## 📊 Reportes de Pruebas con Allure
+
+Para complementar las pruebas unitarias, este proyecto utiliza **Allure Reports**, una herramienta que genera reportes en HTML con métricas, colores y navegación amigable.
+
+### 🔹 Ejecución local
+
+1. Ejecuta las pruebas y genera los resultados para Allure:
+
+```bash
+./mvnw clean test
+```
+
 ## Comandos Usados
 
 A continuación se listan los comandos principales utilizados en el desarrollo y en el pipeline de CI:
@@ -29,7 +41,7 @@ A continuación se listan los comandos principales utilizados en el desarrollo y
 ```bash
 mvn package     # Compila el código fuente y empaqueta el proyecto
 mvn test        # Ejecuta las pruebas unitarias del proyecto
-java -jar target/nombre-del-archivo.jar   # Ejecuta la aplicación Java empaquetada
+java -jar target/calculadora.jar   # Ejecuta la aplicación Java empaquetada
 
 ## ⚙️ Explicación del Pipeline de CI
 
@@ -58,3 +70,4 @@ El pipeline consta de los siguientes pasos:
 - **Run tests** → Ejecuta todas las pruebas unitarias para asegurar la calidad del código.  
 
 > ⚠️ Si alguno de estos pasos falla (por ejemplo, si una prueba no pasa), el pipeline se detiene y notifica al desarrollador, evitando que se fusione código defectuoso.
+
