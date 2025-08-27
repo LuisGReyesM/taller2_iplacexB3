@@ -1,64 +1,30 @@
-name: Java CI with Allure
+name: Java CI
 
 on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v2
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Make Maven Wrapper executable (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: chmod +x ./mvnw
-
       - name: Build with Maven
-        run: |
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            mvnw.cmd clean package --batch-mode
-          else
-            ./mvnw clean package --batch-mode
-          fi
+        run: mvn -B package --file pom.xml
 
       - name: Run tests
-        run: |
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            mvnw.cmd test
-          else
-            ./mvnw test
-          fi
+        run: mvn test
 
-      - name: Install Allure (Linux)
-        if: runner.os != 'Windows'
-        run: |
-          sudo apt update
-          sudo apt install -y unzip curl
-          curl -o allure.zip -L https://github.com/allure-framework/allure2/releases/download/2.26.0/allure-2.26.0.zip
-          unzip allure.zip -d $HOME/allure
-          echo "$HOME/allure/allure-2.26.0/bin" >> $GITHUB_PATH
+      - name: Generate HTML Report
+        run: mvn site
 
-      - name: Generate Allure Report
-        run: |
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            allure.bat generate target/allure-results -o target/allure-report --clean
-          else
-            allure generate target/allure-results -o target/allure-report --clean
-          fi
-
-      - name: Upload Allure Report
+      - name: Upload HTML Report
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report
-          path: target/allure-report
-
+          name: junit-html-report
+          path: target/site/surefire-report.html
